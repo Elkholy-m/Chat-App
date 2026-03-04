@@ -1,6 +1,12 @@
 using System.Text;
+using ChatApp.Application.Interfaces.Infrastructure;
+using ChatApp.Application.Interfaces.Services;
+using ChatApp.Application.Services;
 using ChatApp.Domain.Configurations;
+using ChatApp.Domain.Interfaces;
 using ChatApp.Infrastructure.Persistence;
+using ChatApp.Infrastructure.Persistence.Repositories;
+using ChatApp.Infrastructure.Security;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
@@ -42,5 +48,16 @@ public static class ServiceExtensions
                     };
                 });
 
+    }
+
+    public static void ConfigAppServices(this IServiceCollection services) {
+        services.AddScoped<IAuthneticationService, AuthneticationService>();
+    }
+
+    public static void ConfigAppInfrastructure(this IServiceCollection services) {
+        services.AddScoped<IPasswordHasher, PasswordHasher>();
+        services.AddScoped<IJwtProvider, JwtProvider>();
+        services.AddScoped<IUnitOfWork, UnitOfWork>();
+        services.AddScoped<IUserRepository, UserRepository>();
     }
 }

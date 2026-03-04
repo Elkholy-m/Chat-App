@@ -2,6 +2,7 @@ using ChatApp.Application.Dtos.Auth;
 using ChatApp.Application.Interfaces.Infrastructure;
 using ChatApp.Application.Interfaces.Services;
 using ChatApp.Domain.Entities;
+using ChatApp.Domain.Enums;
 using ChatApp.Domain.Interfaces;
 
 namespace ChatApp.Application.Services;
@@ -29,10 +30,11 @@ public class AuthneticationService(
         await userRepository.CreateUserAsync(newUser);
         await unitOfWork.SaveChangesAsync();
 
-        string jwt = jwtProvider.GenerateToken(newUser);
+        (string jwt, long exp) = jwtProvider.GenerateToken(newUser);
         AuthResponse response = new () {
             Token =  jwt,
-            TokenType = Domain.Enums.TokenType.Jwt,
+            TokenType = Enum.GetName(TokenType.Jwt)!,
+            ExpiresIn = exp,
             UserId = newUser.Id
         };
 
@@ -47,10 +49,11 @@ public class AuthneticationService(
         if (!passwordHasher.VerifyPassword(loginDto.Password, dbUser.PasswordHash))
             throw new Exception("INVALID CREDENTIALS");
 
-        string jwt = jwtProvider.GenerateToken(dbUser);
+        (string jwt, long exp) = jwtProvider.GenerateToken(dbUser);
         AuthResponse response = new () {
             Token =  jwt,
-            TokenType = Domain.Enums.TokenType.Jwt,
+            TokenType = Enum.GetName(TokenType.Jwt)!,
+            ExpiresIn = exp,
             UserId = dbUser.Id
         };
 

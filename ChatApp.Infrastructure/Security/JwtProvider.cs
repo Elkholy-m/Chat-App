@@ -13,7 +13,7 @@ public class JwtProvider(IOptionsSnapshot<JwtConfiguration> options) : IJwtProvi
 {
     private readonly JwtConfiguration jwtConfiguration = options.Value;
 
-    public string GenerateToken(User user)
+    public (string jwt, long exp) GenerateToken(User user)
     {
         var jwtPrivateKey = Environment.GetEnvironmentVariable("JwtKey") ??
             throw new Exception("CAN'T GET JWT ENVIRONMET KEY");
@@ -34,6 +34,11 @@ public class JwtProvider(IOptionsSnapshot<JwtConfiguration> options) : IJwtProvi
                 expires: expires,
                 signingCredentials: credintials);
 
-        return new JwtSecurityTokenHandler().WriteToken(token);
+        var handler = new JwtSecurityTokenHandler();
+        string jwt = handler.WriteToken(token);
+        DateTime validTo  = handler.ReadJwtToken(jwt).ValidTo;
+        long exp = new DateTimeOffset(validTo).ToUnixTimeSeconds();
+
+        return (jwt, exp);
     }
 }

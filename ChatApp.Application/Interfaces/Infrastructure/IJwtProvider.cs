@@ -4,5 +4,5 @@ namespace ChatApp.Application.Interfaces.Infrastructure;
 
 public interface IJwtProvider
 {
-    string GenerateToken(User user);
+    (string jwt, long exp)  GenerateToken(User user);
 }

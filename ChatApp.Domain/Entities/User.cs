@@ -29,10 +29,9 @@ public class User
 
     public DateTime? DeletedAt { get; private set; }
 
-    // Navigation properties (domain-level, not EF-specific)
-    public ICollection<ConversationParticipant> Conversations { get; private set; } = [];
+    public virtual ICollection<ConversationParticipant> ConversationParticipants { get; private set; } = [];
 
-    public ICollection<Message> SentMessages { get; private set; } = [];
+    public virtual ICollection<Message> Messages { get; private set; } = [];
 
 
     // Domain behavior methods

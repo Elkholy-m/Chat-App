@@ -32,10 +32,13 @@ public class Message
 
     public bool IsRead { get; private set; }
 
-    // Navigation properties
-    public Conversation Conversation { get; private set; } = null!;
+    public bool IsDeleted { get; private set; }
 
-    public User Sender { get; private set; } = null!;
+    public DateTime? DeletedAt { get; private set; }
+
+    public virtual Conversation Conversation { get; private set; } = null!;
+
+    public virtual User Sender { get; private set; } = null!;
 
 
     // Domain behavior
@@ -43,5 +46,13 @@ public class Message
     public void MarkAsRead()
     {
         IsRead = true;
+    }
+
+    public void Delete()
+    {
+        if (!IsDeleted) {
+            IsDeleted = true;
+            DeletedAt = DateTime.UtcNow;
+        }
     }
 }
