@@ -10,13 +10,5 @@ public interface IUserRepository
 
     Task<User?> GetUserByEmailAsync(string email);
 
-    Task<IList<User>?> SearchByUsernameAsync(string username);
-
-    Task UpdateUserUsernameAsync(Guid id, string newUsername);
-
-    Task UpdateUserPasswordAsync(Guid id, string newPassHash);
-
-    Task UpdateUserEmailAsync(Guid id, string newEmail);
-
-    Task DeleteUserAsync(User user);
+    Task<IList<User>> SearchByUsernameAsync(string username);
 }

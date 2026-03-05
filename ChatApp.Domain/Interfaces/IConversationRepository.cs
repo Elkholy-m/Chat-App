@@ -10,5 +10,5 @@ public interface IConversationRepository
 
     Task<IList<Conversation>> GetUserConversationsAsync(Guid userId);
 
-    Task<bool> ExistsPrivateConversationAsync(Guid userA, Guid userB);
+    Task<IList<Guid>> GetConversationIdsByUsers(Guid userA, Guid userB);
 }

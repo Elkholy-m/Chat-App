@@ -6,44 +6,22 @@ namespace ChatApp.Infrastructure.Persistence.Repositories;
 
 public class UserRepository(AppDbContext context) : IUserRepository
 {
-    private readonly DbSet<User> Users = context.Set<User>();
+    private readonly DbSet<User> _users = context.Set<User>();
 
-    public async Task<IList<User>?> SearchByUsernameAsync(string username) =>
-        await Users.Where(u => u.UserName.Contains(username)).ToListAsync();
+    public async Task<IList<User>> SearchByUsernameAsync(string username) =>
+        await _users
+            .AsNoTracking()
+            .Where(u => u.UserName.Contains(username))
+            .Take(20)
+            .ToListAsync();
 
     public async Task<User?> GetUserByIdAsync(Guid userId) =>
-        await Users.SingleOrDefaultAsync(u => u.Id.Equals(userId));
+        await _users.FindAsync(userId);
     
     public async Task<User?> GetUserByEmailAsync(string email) =>
-        await Users.SingleOrDefaultAsync(u => u.Email.Equals(email));
+        await _users.FirstOrDefaultAsync(u => u.Email == email);
 
     public async Task CreateUserAsync(User user) => 
-        await Users.AddAsync(user);
+        await _users.AddAsync(user);
 
-    public async Task DeleteUserAsync(User user) => 
-        user.DeleteUser();
-
-    public async Task UpdateUserUsernameAsync(Guid id, string newUsername)
-    {
-        User user = await Users.SingleOrDefaultAsync(u => u.Id.Equals(id)) ??
-            throw new Exception($"User with id : `{id}` not found in db");
-
-        user.ChangeUserName(newUsername);
-    }
-
-    public async Task UpdateUserPasswordAsync(Guid id, string newPassHash)
-    {
-        User user = await Users.SingleOrDefaultAsync(u => u.Id.Equals(id)) ??
-            throw new Exception($"User with id : `{id}` not found in db");
-
-        user.ChangePassword(newPassHash);
-    }
-
-    public async Task UpdateUserEmailAsync(Guid id, string newEmail)
-    {
-        User user = await Users.SingleOrDefaultAsync(u => u.Id.Equals(id)) ??
-            throw new Exception($"User with id : `{id}` not found in db");
-
-        user.ChangeEmail(newEmail);
-    }
 }
