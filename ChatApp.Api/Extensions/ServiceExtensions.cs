@@ -52,6 +52,7 @@ public static class ServiceExtensions
 
     public static void ConfigAppServices(this IServiceCollection services) {
         services.AddScoped<IAuthneticationService, AuthneticationService>();
+        services.AddScoped<IUserServie, UserService>();
     }
 
     public static void ConfigAppInfrastructure(this IServiceCollection services) {

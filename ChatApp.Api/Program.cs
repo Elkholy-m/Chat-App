@@ -8,7 +8,10 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.Configure<JwtConfiguration>(builder.Configuration.GetSection("JWT"));
 
-builder.Services.AddControllers();
+builder.Services
+    .AddControllers()
+    .ConfigureApiBehaviorOptions( opt => { opt.SuppressModelStateInvalidFilter = true;});
+
 builder.Services.AddOpenApi();
 builder.Services.ConfigSqlServer(builder.Configuration);
 builder.Services.ConfigSwagger();

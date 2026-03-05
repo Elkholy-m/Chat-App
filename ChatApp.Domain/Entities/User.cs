@@ -46,6 +46,9 @@ public class User
         if (string.IsNullOrWhiteSpace(newUserName))
             throw new ArgumentException("Username cannot be empty.");
 
+        if (newUserName.Length < 7)
+            throw new ArgumentException("Username cannot be less than 7 chars.");
+
         UserName = newUserName;
     }
 
@@ -70,6 +73,14 @@ public class User
         if (! IsDeleted) {
             IsDeleted = true;
             DeletedAt = DateTime.UtcNow;
+        }
+    }
+
+    public void UndoDeleteUser()
+    {
+        if (IsDeleted) {
+            IsDeleted = false;
+            DeletedAt = null;
         }
     }
 }

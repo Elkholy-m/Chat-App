@@ -16,9 +16,22 @@ public class AuthneticationService(
     public async Task<AuthResponse> RegisterUserAsync(RegisterDto registerDto)
     {
         User? dbUser = await userRepository.GetUserByEmailAsync(registerDto.Email);
-        if (dbUser != null) {
-            throw new Exception("Email is already exists.");
+
+        // User return register after delete
+        if (dbUser != null && dbUser.IsDeleted) {
+            dbUser.UndoDeleteUser();
+            await unitOfWork.SaveChangesAsync();
+            (string jwtu, long expu) = jwtProvider.GenerateToken(dbUser);
+            return new () {
+                Token =  jwtu,
+                TokenType = Enum.GetName(TokenType.Jwt)!,
+                ExpiresIn = expu,
+                UserId = dbUser.Id
+            };
         }
+
+        if (dbUser != null)
+            throw new Exception("Email is already exists.");
 
         var passHash = passwordHasher.HashPasswords(registerDto.Password);
 

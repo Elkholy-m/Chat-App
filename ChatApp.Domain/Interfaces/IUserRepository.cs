@@ -10,5 +10,7 @@ public interface IUserRepository
 
     Task<User?> GetUserByEmailAsync(string email);
 
+    Task<User?> GetUserByUserNameAsync(string username);
+
     Task<IList<User>> SearchByUsernameAsync(string username);
 }
