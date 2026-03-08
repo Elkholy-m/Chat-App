@@ -13,6 +13,10 @@ public class Conversation {
 
     public DateTime CreatedAt { get; private set; }
 
+    public bool IsDeleted { get; private set; }
+
+    public DateTime? DeletedAt { get; private set; }
+
     public virtual ICollection<ConversationParticipant> ConversationParticipants { get; private set; } = [];
 
     public virtual ICollection<Message> Messages { get; private set; } = [];
@@ -28,5 +32,12 @@ public class Conversation {
     public bool HasParticipant(Guid userId)
     {
         return ConversationParticipants.Any(p => p.UserId == userId);
+    }
+
+    public void DeleteConversation() {
+        if (! IsDeleted) {
+            IsDeleted = true;
+            DeletedAt = DateTime.UtcNow;
+        }
     }
 }

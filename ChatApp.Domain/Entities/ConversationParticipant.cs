@@ -17,8 +17,19 @@ public class ConversationParticipant
 
     public DateTime JoinedAt { get; private set; }
 
+    public bool IsDeleted { get; private set; }
+
+    public DateTime? DeletedAt { get; private set; }
+
     // Navigation properties
     public Conversation Conversation { get; private set; } = null!;
 
     public User User { get; private set; } = null!;
+
+    public void DeleteParticipant() {
+        if (! IsDeleted) {
+            IsDeleted = true;
+            DeletedAt = DateTime.UtcNow;
+        }
+    }
 }

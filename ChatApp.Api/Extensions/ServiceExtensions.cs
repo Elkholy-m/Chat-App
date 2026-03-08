@@ -53,6 +53,7 @@ public static class ServiceExtensions
     public static void ConfigAppServices(this IServiceCollection services) {
         services.AddScoped<IAuthneticationService, AuthneticationService>();
         services.AddScoped<IUserServie, UserService>();
+        services.AddScoped<IConversationService, ConversationService>();
     }
 
     public static void ConfigAppInfrastructure(this IServiceCollection services) {
@@ -60,5 +61,6 @@ public static class ServiceExtensions
         services.AddScoped<IJwtProvider, JwtProvider>();
         services.AddScoped<IUnitOfWork, UnitOfWork>();
         services.AddScoped<IUserRepository, UserRepository>();
+        services.AddScoped<IConversationRepository, ConversationRepository>();
     }
 }
