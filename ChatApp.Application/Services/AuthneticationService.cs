@@ -1,4 +1,5 @@
 using ChatApp.Application.Dtos.Auth;
+using ChatApp.Application.Exceptions;
 using ChatApp.Application.Interfaces.Infrastructure;
 using ChatApp.Application.Interfaces.Services;
 using ChatApp.Domain.Entities;
@@ -17,21 +18,9 @@ public class AuthneticationService(
     {
         User? dbUser = await userRepository.GetUserByEmailAsync(registerDto.Email);
 
-        // User return register after delete
-        if (dbUser != null && dbUser.IsDeleted) {
-            dbUser.UndoDeleteUser();
-            await unitOfWork.SaveChangesAsync();
-            (string jwtu, long expu) = jwtProvider.GenerateToken(dbUser);
-            return new () {
-                Token =  jwtu,
-                TokenType = Enum.GetName(TokenType.Jwt)!,
-                ExpiresIn = expu,
-                UserId = dbUser.Id
-            };
-        }
-
+        // TODO: User return register after delete
         if (dbUser != null)
-            throw new Exception("Email is already exists.");
+            throw new BadRequestException("Email is already exists.");
 
         var passHash = passwordHasher.HashPasswords(registerDto.Password);
 
@@ -57,10 +46,13 @@ public class AuthneticationService(
     public async Task<AuthResponse> LogInUserAsync(LoginDto loginDto)
     {
         User? dbUser = await userRepository.GetUserByEmailAsync(loginDto.Email) ??
-            throw new Exception("INVALID CREDENTIALS");
+            throw new UnauthorizedException("INVALID CREDENTIALS");
+
+        if (dbUser.IsDeleted)
+            throw new UnauthorizedException("INVALID CREDENTIALS");
 
         if (!passwordHasher.VerifyPassword(loginDto.Password, dbUser.PasswordHash))
-            throw new Exception("INVALID CREDENTIALS");
+            throw new UnauthorizedException("INVALID CREDENTIALS");
 
         (string jwt, long exp) = jwtProvider.GenerateToken(dbUser);
         AuthResponse response = new () {

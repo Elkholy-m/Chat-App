@@ -8,6 +8,8 @@ public interface IConversationRepository
 
     Task<Conversation?> GetByIdAsync(Guid conversationId);
 
+    Task<Conversation?> GetByIdIgnoreFilterAsync(Guid conversationId);
+
     Task<IList<Conversation>> GetUserConversationsAsync(Guid userId);
 
     Task<IList<Conversation>> IntersectedConversations(Guid userA, Guid userB);

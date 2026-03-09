@@ -10,9 +10,13 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
     {
         builder.HasKey(e => e.Id).HasName("USERS_PK");
 
-        builder.HasIndex(e => e.Email, "USERS_EMAIL_UNQ").IsUnique();
+        builder.HasIndex(u => u.Email, "IX_Users_Email_NotDeleted")
+        .IsUnique()
+        .HasFilter("[IsDeleted] = 0");
 
-        builder.HasIndex(e => e.UserName, "USERS_USERNAME_UNQ").IsUnique();
+        builder.HasIndex(u => u.UserName, "IX_Users_Username_NotDeleted")
+        .IsUnique()
+        .HasFilter("[IsDeleted] = 0");
 
         builder.Property(e => e.Id).HasDefaultValueSql("(newid())");
         builder.Property(e => e.CreatedAt).HasDefaultValueSql("(sysutcdatetime())");

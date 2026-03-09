@@ -1,4 +1,5 @@
 using ChatApp.Application.Dtos.Users;
+using ChatApp.Application.Exceptions;
 using ChatApp.Application.Interfaces.Infrastructure;
 using ChatApp.Application.Interfaces.Services;
 using ChatApp.Domain.Entities;
@@ -13,12 +14,12 @@ public class UserService(
 {
     public async Task UpdateUserProfileAsync(Guid id, UserProfileRequest profileRequest) {
         User user = await userRepository.GetUserByIdAsync(id) ??
-            throw new Exception($"User with id : {id} not found in db");
+            throw new NotFoundException($"User with id : {id} not found in db");
 
         if (profileRequest.UserName != null) {
             User? dbUsername = await userRepository.GetUserByUserNameAsync(profileRequest.UserName);
             if (dbUsername != null)
-                throw new Exception($"Username is already exists.");
+                throw new BadRequestException($"Username is already exists.");
 
             user.ChangeUserName(profileRequest.UserName);
         }
@@ -27,7 +28,7 @@ public class UserService(
         if (profileRequest.Email != null) {
             User? dbEmail = await userRepository.GetUserByEmailAsync(profileRequest.Email);
             if (dbEmail != null)
-                throw new Exception($"Email is already exists.");
+                throw new BadRequestException($"Email is already exists.");
 
             user.ChangeEmail(profileRequest.Email);
         }
@@ -38,7 +39,7 @@ public class UserService(
     public async Task UpdateUserLastSeenAsync(Guid id)
     {
         User user = await userRepository.GetUserByIdAsync(id) ??
-            throw new Exception($"User with id : {id} not found in db");
+            throw new NotFoundException($"User with id : {id} not found in db");
 
         user.UpdateLastSeen();
         await unitOfWork.SaveChangesAsync();
@@ -47,10 +48,10 @@ public class UserService(
     public async Task ChangeUserPasswordAsync(Guid id, string prevPass, string newPass)
     {
         User user = await userRepository.GetUserByIdAsync(id) ??
-            throw new Exception($"User with id : {id} not found in db");
+            throw new NotFoundException($"User with id : {id} not found in db");
 
         if (!passwordHaser.VerifyPassword(prevPass, user.PasswordHash))
-            throw new Exception($"INVALID CREDENTIALS");
+            throw new UnauthorizedException($"INVALID CREDENTIALS");
 
         var newPassHash = passwordHaser.HashPasswords(newPass);
         user.ChangePassword(newPassHash);
@@ -60,7 +61,7 @@ public class UserService(
     public async Task<UserResponse> GetUserById(Guid id)
     {
         User user = await userRepository.GetUserByIdAsync(id) ??
-            throw new Exception($"User with id : {id} not found in db");
+            throw new NotFoundException($"User with id : {id} not found in db");
 
              UserResponse userResponse  = new() {
                  Id = user.Id,
@@ -96,7 +97,7 @@ public class UserService(
     public async Task SoftDeleteUserAsync(Guid id)
     {
         User user = await userRepository.GetUserByIdAsync(id) ??
-            throw new Exception($"User with id : {id} not found in db");
+            throw new NotFoundException($"User with id : {id} not found in db");
 
         user.DeleteUser();
         await unitOfWork.SaveChangesAsync();

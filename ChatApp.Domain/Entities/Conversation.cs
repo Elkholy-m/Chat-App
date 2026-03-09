@@ -29,6 +29,14 @@ public class Conversation {
         ConversationParticipants.Add(new ConversationParticipant(Id, userId));
     }
 
+    public void RestoreParticipant(Guid userId)
+    {
+        var cp = ConversationParticipants.FirstOrDefault(cp => cp.UserId == userId) ??
+            throw new InvalidOperationException("User is not in the conversation.");
+
+        cp.RestoreParticipant();
+    }
+
     public bool HasParticipant(Guid userId)
     {
         return ConversationParticipants.Any(p => p.UserId == userId);
@@ -38,6 +46,9 @@ public class Conversation {
         if (! IsDeleted) {
             IsDeleted = true;
             DeletedAt = DateTime.UtcNow;
+
+            foreach (var cp in ConversationParticipants)
+                cp.DeleteParticipant();
         }
     }
 }

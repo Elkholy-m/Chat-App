@@ -11,4 +11,8 @@ public interface IConversationService
     Task<IList<ConversationResponse>> GetConversationsForUserAsync(Guid userId);
 
     Task DeleteConversation(Guid convId);
+
+    Task AddUsersToConversation(Guid convId, IList<Guid> userIds);
+
+    Task DeleteUsersFromConversation(Guid convId, Guid userId);
 }

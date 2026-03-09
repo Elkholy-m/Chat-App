@@ -1,4 +1,5 @@
 using ChatApp.Api.Extensions;
+using ChatApp.Api.Middlewares;
 using ChatApp.Domain.Configurations;
 
 DotNetEnv.Env.Load();
@@ -28,6 +29,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.HandleException();
 
 app.UseHttpsRedirection();
 

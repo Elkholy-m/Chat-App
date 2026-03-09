@@ -27,9 +27,16 @@ public class ConversationParticipant
     public User User { get; private set; } = null!;
 
     public void DeleteParticipant() {
-        if (! IsDeleted) {
+        if (!IsDeleted) {
             IsDeleted = true;
             DeletedAt = DateTime.UtcNow;
+        }
+    }
+
+    public void RestoreParticipant() {
+        if (IsDeleted) {
+            IsDeleted = false;
+            DeletedAt = null;
         }
     }
 }

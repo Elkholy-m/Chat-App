@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using ChatApp.Application.Dtos.Conversation;
+using ChatApp.Application.Exceptions;
 using ChatApp.Application.Interfaces.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -11,12 +12,12 @@ public class ConversationsController(IConversationService conversationService) :
 {
     [HttpGet]
     public async Task<IActionResult> GetConversationsOfUser([FromQuery] Guid userId) {
-        // Claim idClaim = User.FindFirst(ClaimTypes.NameIdentifier) ??
-        //     throw new Exception("Invalid token");
-        //
-        // Guid authId = Guid.Parse(idClaim.Value);
-        // if (authId != userId)
-        //     Forbid();
+        Claim idClaim = User.FindFirst(ClaimTypes.NameIdentifier) ??
+            throw new UnauthorizedException("Invalid token");
+
+        Guid authId = Guid.Parse(idClaim.Value);
+        if (authId != userId)
+            Forbid();
 
         IList<ConversationResponse> conversations = 
             await conversationService.GetConversationsForUserAsync(userId);
@@ -42,6 +43,18 @@ public class ConversationsController(IConversationService conversationService) :
     [HttpDelete("{convId:guid}")]
     public async Task<IActionResult> DeleteConversation([FromRoute] Guid convId) {
         await conversationService.DeleteConversation(convId);
+        return NoContent();
+    }
+
+    [HttpPost("{convId:guid}/participants")]
+    public async Task<IActionResult> AddUsersToConversation([FromRoute] Guid convId, [FromBody] IList<Guid> userIds) {
+        await conversationService.AddUsersToConversation(convId, userIds);
+        return NoContent();
+    }
+
+    [HttpDelete("{convId:guid}/participants/{userId:guid}")]
+    public async Task<IActionResult> DeleteConversation([FromRoute] Guid convId, [FromRoute] Guid userId) {
+        await conversationService.DeleteUsersFromConversation(convId, userId);
         return NoContent();
     }
 }

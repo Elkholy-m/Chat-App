@@ -14,20 +14,25 @@ public class ConversationRepository(AppDbContext context) : IConversationReposit
     public async Task<Conversation?> GetByIdAsync(Guid conversationId) =>
         await _conversations
             .Include(c => c.ConversationParticipants)
-            .FirstOrDefaultAsync(c => !c.IsDeleted && c.Id == conversationId);
+            .FirstOrDefaultAsync(c => c.Id == conversationId);
+
+    public async Task<Conversation?> GetByIdIgnoreFilterAsync(Guid conversationId) =>
+        await _conversations
+            .IgnoreQueryFilters()
+            .Include(c => c.ConversationParticipants)
+            .FirstOrDefaultAsync(c => c.Id == conversationId);
 
     public async Task<IList<Conversation>> IntersectedConversations(Guid userA, Guid userB) =>
         await _conversations
             .Include(c => c.ConversationParticipants)
             .Where(c =>
-                    !c.IsDeleted && 
-                    c.ConversationParticipants.Any(p => p.UserId == userA) &&
-                    c.ConversationParticipants.Any(p => p.UserId == userB))
+                    c.ConversationParticipants.Any(cp => cp.UserId == userA) &&
+                    c.ConversationParticipants.Any(cp => cp.UserId == userB))
             .ToListAsync();
 
     public async Task<IList<Conversation>> GetUserConversationsAsync(Guid userId) =>
         await _conversations
             .Include(c => c.ConversationParticipants)
-            .Where(c => !c.IsDeleted && c.ConversationParticipants.Any(cp => cp.UserId == userId))
+            .Where(c => c.ConversationParticipants.Any(cp => cp.UserId == userId))
             .ToListAsync();
 }

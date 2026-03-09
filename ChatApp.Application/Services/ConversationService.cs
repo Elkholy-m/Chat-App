@@ -1,4 +1,5 @@
 using ChatApp.Application.Dtos.Conversation;
+using ChatApp.Application.Exceptions;
 using ChatApp.Application.Interfaces.Infrastructure;
 using ChatApp.Application.Interfaces.Services;
 using ChatApp.Domain.Entities;
@@ -13,21 +14,17 @@ public class ConversationService(
     public async Task<Guid> CreateConversationAsync(IList<Guid> participantIds)
     {
         if (participantIds.Count < 2)
-            throw new Exception("Can't create a conversation for less than 2 users.");
+            throw new BadRequestException("Can't create a conversation for less than 2 users.");
 
         // CHECK IF CONVERSATION EXISTANCE FIRST BEFORE CREATE PRIVATE CONVERSATION
         if (participantIds.Count == 2) {
             IList<Conversation> intersectedConversations = await conversationRepository
                 .IntersectedConversations(participantIds[0], participantIds[1]);
 
-            if (intersectedConversations != null)
-                Console.WriteLine("INTERSECTED CONVERSATIONS IS NOT NULL");
-
-            Conversation? privateConversation = intersectedConversations!
+            Conversation? privateConversation = intersectedConversations
                 .FirstOrDefault(c => c.ConversationParticipants.Count == 2);
 
             if (privateConversation != null) {
-                Console.WriteLine("PRIVATE CONVERSATION IS NOT NULL");
                 return privateConversation.Id;
             }
         }
@@ -36,6 +33,8 @@ public class ConversationService(
         var conversation = new Conversation(Guid.NewGuid());
 
         foreach (Guid pId in participantIds) {
+            // TODO: check if user ids is already in my system first
+            // TODO: exception middlerware handler
             conversation.AddParticipant(pId);
         }
 
@@ -48,7 +47,7 @@ public class ConversationService(
     public async Task DeleteConversation(Guid convId)
     {
         Conversation conversation = await conversationRepository.GetByIdAsync(convId) ??
-            throw new Exception("Conversation with id : {id} not exist in db.");
+            throw new NotFoundException($"Conversation with id : {convId} not exist in db.");
 
         conversation.DeleteConversation();
         await unitOfWork.SaveChangesAsync();
@@ -57,7 +56,7 @@ public class ConversationService(
     public async Task<ConversationResponse> GetConversationByIdAsync(Guid convId)
     {
         Conversation conv = await conversationRepository.GetByIdAsync(convId) ??
-            throw new Exception("Conversation with id : {id} not exist in db.");
+            throw new NotFoundException($"Conversation with id : {convId} not exist in db.");
 
         return new ConversationResponse
         {
@@ -76,6 +75,38 @@ public class ConversationService(
                 CreatedAt = c.CreatedAt,
                 ParticipantsIds = [.. c.ConversationParticipants.Select(cp => cp.UserId)]
                 })];
+    }
+
+    public async Task AddUsersToConversation(Guid convId, IList<Guid> userIds)
+    {
+        Conversation conversation = await conversationRepository.GetByIdIgnoreFilterAsync(convId) ??
+            throw new NotFoundException($"Conversation with id : {convId} not exists in db");
+
+        foreach (var userId in userIds) {
+            // TODO: Should check the state where the user return enter the exited conversation
+            if (!conversation.HasParticipant(userId)) {
+                conversation.AddParticipant(userId);
+            } else {
+                conversation.RestoreParticipant(userId);
+            }
+        }
+
+        await unitOfWork.SaveChangesAsync();
+    }
+
+    public async Task DeleteUsersFromConversation(Guid convId, Guid userId)
+    {
+        Conversation conversation = await conversationRepository.GetByIdAsync(convId) ??
+            throw new NotFoundException($"Conversation with id : {convId} not exists in db");
+
+        conversation.ConversationParticipants
+            .FirstOrDefault(cp => cp.UserId == userId)?
+            .DeleteParticipant();
+
+        if (conversation.ConversationParticipants.Count < 3)
+            conversation.DeleteConversation();
+
+        await unitOfWork.SaveChangesAsync();
     }
 }
 

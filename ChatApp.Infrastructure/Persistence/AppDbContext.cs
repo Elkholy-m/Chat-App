@@ -16,6 +16,11 @@ public class AppDbContext : DbContext
         modelBuilder.ApplyConfiguration(new MessageConfiguration());
         modelBuilder.ApplyConfiguration(new ConversationParticipantConfiguration());
 
+        modelBuilder.Entity<User>().HasQueryFilter(u => !u.IsDeleted);
+        modelBuilder.Entity<Conversation>().HasQueryFilter(c => !c.IsDeleted);
+        modelBuilder.Entity<ConversationParticipant>().HasQueryFilter(cp => !cp.IsDeleted);
+        modelBuilder.Entity<Message>().HasQueryFilter(m => !m.IsDeleted);
+
         base.OnModelCreating(modelBuilder);
     }
 
