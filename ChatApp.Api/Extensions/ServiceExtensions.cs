@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi;
 
 namespace ChatApp.Api.Extensions;
 
@@ -18,7 +19,27 @@ public static class ServiceExtensions
 {
     public static void ConfigSwagger(this IServiceCollection services) {
         services.AddEndpointsApiExplorer();
-        services.AddSwaggerGen();
+            services.AddSwaggerGen(setup =>
+            {
+                setup.AddSecurityDefinition("Bearer",  new OpenApiSecurityScheme 
+                {
+                    Name = "Authorization",
+                    Type = SecuritySchemeType.Http,
+                    Scheme = "Bearer",
+                    BearerFormat = "JWT",
+                    In = ParameterLocation.Header,
+                    Description = "JWT Authorization header using the Bearer scheme. Enter 'Bearer' [space] and then your token in the text input below.",
+                });
+
+                setup.AddSecurityRequirement(doc => new OpenApiSecurityRequirement 
+                {
+                    {
+                        new OpenApiSecuritySchemeReference("Bearer"),
+                        new List<string>()
+                    },
+                });
+            });
+
     }
 
     public static void ConfigSqlServer(this IServiceCollection services, IConfiguration configuration) {

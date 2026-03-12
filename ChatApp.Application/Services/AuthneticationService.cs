@@ -18,7 +18,6 @@ public class AuthneticationService(
     {
         User? dbUser = await userRepository.GetUserByEmailAsync(registerDto.Email);
 
-        // TODO: User return register after delete
         if (dbUser != null)
             throw new BadRequestException("Email is already exists.");
 

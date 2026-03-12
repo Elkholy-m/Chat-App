@@ -2,10 +2,12 @@ using System.Security.Claims;
 using ChatApp.Application.Dtos.Conversation;
 using ChatApp.Application.Exceptions;
 using ChatApp.Application.Interfaces.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ChatApp.Api.Controllers;
 
+[Authorize]
 [ApiController]
 [Route("api/conversations")]
 public class ConversationsController(IConversationService conversationService) : ControllerBase

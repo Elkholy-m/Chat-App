@@ -16,7 +16,7 @@ public class UserRepository(AppDbContext context) : IUserRepository
             .ToListAsync();
 
     public async Task<User?> GetUserByIdAsync(Guid userId) =>
-        await _users.FirstOrDefaultAsync(u => u.Id == userId);
+        await _users.FindAsync(userId);
     
     public async Task<User?> GetUserByEmailAsync(string email) =>
         await _users.FirstOrDefaultAsync(u => u.Email == email);
@@ -26,4 +26,7 @@ public class UserRepository(AppDbContext context) : IUserRepository
 
     public async Task CreateUserAsync(User user) => 
         await _users.AddAsync(user);
+
+    public async Task<bool> CheckUserExistance(Guid userId) =>
+        await _users.AnyAsync(u => u.Id == userId);
 }

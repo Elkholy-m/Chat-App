@@ -8,6 +8,7 @@ using ChatApp.Domain.Interfaces;
 namespace ChatApp.Application.Services;
 
 public class ConversationService(
+        IUserRepository userRepository,
         IConversationRepository conversationRepository,
         IUnitOfWork unitOfWork) : IConversationService
 {
@@ -33,8 +34,9 @@ public class ConversationService(
         var conversation = new Conversation(Guid.NewGuid());
 
         foreach (Guid pId in participantIds) {
-            // TODO: check if user ids is already in my system first
-            // TODO: exception middlerware handler
+            if (!await userRepository.CheckUserExistance(pId))
+                throw new BadRequestException($"User with id : {pId} not exist in system.");
+
             conversation.AddParticipant(pId);
         }
 
@@ -83,7 +85,6 @@ public class ConversationService(
             throw new NotFoundException($"Conversation with id : {convId} not exists in db");
 
         foreach (var userId in userIds) {
-            // TODO: Should check the state where the user return enter the exited conversation
             if (!conversation.HasParticipant(userId)) {
                 conversation.AddParticipant(userId);
             } else {

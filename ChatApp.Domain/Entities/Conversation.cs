@@ -31,7 +31,7 @@ public class Conversation {
 
     public void RestoreParticipant(Guid userId)
     {
-        var cp = ConversationParticipants.FirstOrDefault(cp => cp.UserId == userId) ??
+        ConversationParticipant cp = ConversationParticipants.FirstOrDefault(p => p.UserId == userId) ??
             throw new InvalidOperationException("User is not in the conversation.");
 
         cp.RestoreParticipant();

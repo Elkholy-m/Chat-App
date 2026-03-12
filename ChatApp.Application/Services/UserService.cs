@@ -21,6 +21,8 @@ public class UserService(
             if (dbUsername != null)
                 throw new BadRequestException($"Username is already exists.");
 
+            // Validate new username here
+
             user.ChangeUserName(profileRequest.UserName);
         }
 
@@ -29,6 +31,8 @@ public class UserService(
             User? dbEmail = await userRepository.GetUserByEmailAsync(profileRequest.Email);
             if (dbEmail != null)
                 throw new BadRequestException($"Email is already exists.");
+
+            // Validate new email
 
             user.ChangeEmail(profileRequest.Email);
         }

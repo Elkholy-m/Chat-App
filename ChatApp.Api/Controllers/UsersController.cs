@@ -1,10 +1,12 @@
 using System.Security.Claims;
 using ChatApp.Application.Dtos.Users;
 using ChatApp.Application.Interfaces.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ChatApp.Api.Controllers;
 
+[Authorize]
 [ApiController]
 [Route("api/users")]
 public class UsersController(IUserServie userServie) : ControllerBase

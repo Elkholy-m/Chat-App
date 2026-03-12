@@ -47,7 +47,7 @@ public class User
             throw new ArgumentException("Username cannot be empty.");
 
         if (newUserName.Length < 3)
-            throw new ArgumentException("Username cannot be less than 7 chars.");
+            throw new ArgumentException("Username cannot be less than 3 chars.");
 
         UserName = newUserName;
     }

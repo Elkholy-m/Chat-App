@@ -13,4 +13,6 @@ public interface IUserRepository
     Task<User?> GetUserByUserNameAsync(string username);
 
     Task<IList<User>> SearchByUsernameAsync(string username);
+
+    Task<bool> CheckUserExistance(Guid userId);
 }
